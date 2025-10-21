@@ -1,0 +1,11 @@
+# Google Agent Development Kit (ADK)
+google-adk>=1.16.0
+
+# YAML configuration parsing
+pyyaml>=6.0.0
+
+# Required for the generated application outputs
+gradio>=4.0.0
+
+# For testing the generated code
+pytest>=7.0.0

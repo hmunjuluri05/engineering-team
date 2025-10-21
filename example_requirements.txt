@@ -1,0 +1,19 @@
+Build a simple calculator application that supports:
+
+Core Features:
+- Basic arithmetic operations (addition, subtraction, multiplication, division)
+- Memory functions (store value, recall value, clear memory)
+- Calculation history (view last 10 calculations)
+- Support for decimal numbers
+- Clear display function
+
+Requirements:
+- The calculator should prevent division by zero
+- All operations should return accurate results
+- The history should maintain the order of calculations
+- Memory should persist during a session but clear when the application restarts
+
+Technical Notes:
+- Implement proper error handling for invalid operations
+- Use a simple class-based design
+- Include proper validation for user inputs

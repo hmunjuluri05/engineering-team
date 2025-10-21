@@ -1,0 +1,21 @@
+Build a simple task management application with the following features:
+
+Core Features:
+- Create new tasks with a title, description, and priority level (low, medium, high)
+- Mark tasks as complete or incomplete
+- Delete tasks
+- List all tasks with their status
+- Filter tasks by status (completed/pending)
+- Filter tasks by priority level
+
+Requirements:
+- Each task should have a unique ID
+- Tasks should be stored in memory (no database required for this simple version)
+- The application should validate inputs (e.g., priority must be low/medium/high)
+- The application should prevent duplicate task titles
+- Include proper error handling for invalid operations
+
+Technical Notes:
+- Use Python best practices with type hints and docstrings
+- Keep the implementation simple and clean
+- The UI should be intuitive and easy to use
