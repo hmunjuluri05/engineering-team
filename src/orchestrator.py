@@ -129,12 +129,16 @@ class EngineeringTeam:
             session_id=session.id,
             new_message=content
         ):
-            # Debug: Print all event attributes to understand structure
-            # Uncomment to diagnose event flow
+            # Debug: Print event info when we see a function call
             if self.verbose and hasattr(event, 'content') and event.content:
-                for part in event.content.parts if hasattr(event.content, 'parts') else []:
-                    if hasattr(part, 'function_call') and part.function_call:
-                        print(f"[EVENT DEBUG] type={type(event).__name__}, has_agent_name={hasattr(event, 'agent_name')}, agent_name={getattr(event, 'agent_name', 'N/A')}")
+                if hasattr(event.content, 'parts'):
+                    for part in event.content.parts:
+                        if hasattr(part, 'function_call') and part.function_call:
+                            print(f"[EVENT DEBUG] Event type: {type(event).__name__}")
+                            print(f"[EVENT DEBUG] Has agent_name attr: {hasattr(event, 'agent_name')}")
+                            print(f"[EVENT DEBUG] agent_name value: {getattr(event, 'agent_name', 'ATTR_NOT_FOUND')}")
+                            print(f"[EVENT DEBUG] current_agent value: {current_agent}")
+                            break  # Only debug once per event
 
             # Track and display agent execution progress
             # Check if event has agent_name attribute (even if empty/None)
