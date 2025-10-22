@@ -131,23 +131,22 @@ class EngineeringTeam:
         ):
 
             # Track and display agent execution progress
-            # Check if event has agent_name attribute (even if empty/None)
-            if hasattr(event, 'agent_name'):
-                event_agent_name = event.agent_name
+            # Agent name is in event.author, not event.agent_name
+            event_agent_name = getattr(event, 'author', None) or getattr(event, 'agent_name', None)
 
-                # Update current_agent if we have a non-empty agent_name
-                if event_agent_name:
-                    display_header = (event_agent_name != current_agent)
-                    current_agent = event_agent_name
+            # Update current_agent if we have a non-empty agent name
+            if event_agent_name:
+                display_header = (event_agent_name != current_agent)
+                current_agent = event_agent_name
 
-                    # Only display the header when agent changes
-                    if display_header:
-                        if self.verbose:
-                            print(f"\n{'='*60}")
-                            print(f"▶ Agent Active: {event_agent_name.upper()}")
-                            print(f"{'='*60}")
-                        else:
-                            print(f"\n▶ {event_agent_name}")
+                # Only display the header when agent changes
+                if display_header:
+                    if self.verbose:
+                        print(f"\n{'='*60}")
+                        print(f"▶ Agent Active: {event_agent_name.upper()}")
+                        print(f"{'='*60}")
+                    else:
+                        print(f"\n▶ {event_agent_name}")
 
             # Show when tools are being called (e.g., file saves)
             if self.verbose and hasattr(event, 'content') and event.content:
@@ -156,26 +155,9 @@ class EngineeringTeam:
                     if hasattr(part, 'function_call') and part.function_call:
                         func_name = part.function_call.name
 
-                        # Get agent name from event or fall back to tracked current_agent
-                        event_agent = getattr(event, 'agent_name', None)
+                        # Get agent name from event.author or fall back to tracked current_agent
+                        event_agent = getattr(event, 'author', None) or getattr(event, 'agent_name', None)
                         agent_display = event_agent or current_agent or "unknown"
-
-                        # Debug: Always show what we have
-                        print(f"  [DEBUG] Processing tool call: {func_name}")
-                        print(f"  [DEBUG] event.agent_name = {event_agent}")
-                        print(f"  [DEBUG] current_agent = {current_agent}")
-                        print(f"  [DEBUG] agent_display = {agent_display}")
-
-                        if agent_display == "unknown":
-                            # Show all event attributes to understand what's available
-                            print(f"  [DEBUG] Event type: {type(event).__name__}")
-                            all_attrs = [a for a in dir(event) if not a.startswith('_')]
-                            print(f"  [DEBUG] All event attributes: {all_attrs}")
-                            # Check for any attribute that might contain agent info
-                            for attr in ['source', 'metadata', 'author']:
-                                if hasattr(event, attr):
-                                    val = getattr(event, attr)
-                                    print(f"  [DEBUG] event.{attr} = {val}")
 
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
