@@ -131,8 +131,12 @@ class EngineeringTeam:
         ):
             # Track and display agent execution progress
             if hasattr(event, 'agent_name') and event.agent_name:
-                if event.agent_name != current_agent:
-                    current_agent = event.agent_name
+                # Always update current_agent when we see an agent_name
+                display_header = (event.agent_name != current_agent)
+                current_agent = event.agent_name
+
+                # Only display the header when agent changes
+                if display_header:
                     if self.verbose:
                         print(f"\n{'='*60}")
                         print(f"▶ Agent Active: {event.agent_name.upper()}")
@@ -148,7 +152,12 @@ class EngineeringTeam:
                         func_name = part.function_call.name
 
                         # Get agent name from event or fall back to tracked current_agent
-                        agent_display = getattr(event, 'agent_name', None) or current_agent or "unknown"
+                        event_agent = getattr(event, 'agent_name', None)
+                        agent_display = event_agent or current_agent or "unknown"
+
+                        # Debug: Enable to diagnose agent name issues
+                        if agent_display == "unknown":
+                            print(f"  [DEBUG] event.agent_name={event_agent}, current_agent={current_agent}, using={agent_display}")
 
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
