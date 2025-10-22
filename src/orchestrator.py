@@ -1,7 +1,7 @@
 """Orchestrator for the Engineering Team with parallel execution support."""
 
 from pathlib import Path
-from google.adk.agents import SequentialAgent
+from google.adk.agents import SequentialAgent, ParallelAgent
 from google.adk.runners import InMemoryRunner
 from google.genai import types
 from .agents import AgentFactory
@@ -12,10 +12,14 @@ class EngineeringTeam:
     Engineering Team orchestrator using Google ADK.
 
     This class creates a two-phase workflow:
-    1. Design Phase: Engineering Lead creates the design
+    1. Design Phase: Engineering Lead creates the design (sequential)
     2. Implementation Phase: Backend, Frontend, and Test engineers work in parallel from the design
 
-    Agents are created from YAML configuration files.
+    Architecture:
+    - Uses SequentialAgent for overall workflow (Phase 1 then Phase 2)
+    - Uses ParallelAgent for Phase 2 to run Backend, Frontend, Test simultaneously
+    - Agents communicate through shared state using output_key
+    - Agents are created from YAML configuration files
     """
 
     def __init__(self, requirements: str, module_name: str, class_name: str,
@@ -57,27 +61,38 @@ class EngineeringTeam:
         self.frontend_engineer = agents_dict['frontend_engineer']
         self.test_engineer = agents_dict['test_engineer']
 
-        # Create a single sequential workflow with all agents
-        # Phase 1: Design (Engineering Lead)
-        # Phase 2: Implementation (Backend, Frontend, Test)
-        self.team = SequentialAgent(
-            name="engineering_team",
-            description="Complete engineering team: design and implementation",
+        # Create parallel implementation team
+        # Backend, Frontend, and Test run simultaneously since they all depend only on design
+        self.implementation_team = ParallelAgent(
+            name="implementation_team",
+            description="Backend, Frontend, and Test engineers working in parallel from the design",
             sub_agents=[
-                self.engineering_lead,
                 self.backend_engineer,
                 self.frontend_engineer,
                 self.test_engineer
             ]
         )
 
+        # Create the overall workflow
+        # Phase 1: Design (Engineering Lead runs first)
+        # Phase 2: Implementation (Backend, Frontend, Test run in parallel)
+        self.team = SequentialAgent(
+            name="engineering_team",
+            description="Complete engineering team: sequential design, then parallel implementation",
+            sub_agents=[
+                self.engineering_lead,
+                self.implementation_team
+            ]
+        )
+
     def run(self, user_query: str = None) -> dict:
         """
-        Run the engineering team workflow:
-        1. Design Phase: Engineering Lead creates DESIGN.md
-        2. Implementation Phase: Backend, Frontend, Test work from the design
+        Run the engineering team workflow in two phases:
+        1. Design Phase: Engineering Lead creates DESIGN.md (sequential)
+        2. Implementation Phase: Backend, Frontend, Test work in parallel from the design
 
-        All agents run sequentially through a single SequentialAgent, sharing state.
+        Uses SequentialAgent for the overall workflow (design then implementation)
+        and ParallelAgent for Phase 2 to run Backend, Frontend, Test simultaneously.
 
         Args:
             user_query: Optional user query to start the workflow
@@ -91,8 +106,8 @@ class EngineeringTeam:
         print("\n" + "="*80)
         print("RUNNING ENGINEERING TEAM WORKFLOW")
         print("="*80)
-        print("Phase 1: Design (Engineering Lead)")
-        print("Phase 2: Implementation (Backend, Frontend, Test)")
+        print("Phase 1: Design (Engineering Lead - Sequential)")
+        print("Phase 2: Implementation (Backend, Frontend, Test - Parallel)")
         print("="*80)
 
         # Create a single runner for the entire team

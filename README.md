@@ -4,12 +4,13 @@ A multi-agent system built with Google's Agent Development Kit (ADK) that automa
 
 ## Overview
 
-The Engineering Team is a multi-agent system that automates the software development process. It uses a **two-phase workflow** for efficient parallel execution:
+The Engineering Team is a multi-agent system that automates the software development process. It uses a **two-phase workflow** with true parallel execution:
 
-**Phase 1 - Design:**
+**Phase 1 - Design (Sequential):**
 1. **Engineering Lead** - Analyzes requirements and creates a detailed design document (DESIGN.md) specifying the architecture, file structure, and module organization
 
-**Phase 2 - Parallel Implementation (all agents work from the same design):**
+**Phase 2 - Parallel Implementation:**
+Backend, Frontend, and Test engineers run **simultaneously in parallel** (using ParallelAgent), all working from the same design:
 2. **Backend Engineer** - Implements the complete backend, creating multiple files and folders as specified in the design
 3. **Frontend Engineer** - Creates a Gradio UI (and additional UI files if needed) based on the design specification
 4. **Test Engineer** - Writes comprehensive test suites based on the design specification
@@ -23,93 +24,64 @@ The Engineering Team is a multi-agent system that automates the software develop
 
 ### Design Overview
 
-The Engineering Team follows a **sequential multi-agent architecture** where specialized agents collaborate to transform high-level requirements into a complete, tested software application. The design emphasizes:
+The Engineering Team follows a **hybrid sequential-parallel multi-agent architecture** where specialized agents collaborate to transform high-level requirements into a complete, tested software application. The design emphasizes:
 
 1. **Separation of Concerns**: Each agent has a single, well-defined responsibility
-2. **Sequential Execution**: Agents run in a specific order, with each agent building upon the work of previous agents
+2. **Hybrid Execution**: Sequential design phase, then parallel implementation phase
 3. **State Sharing**: Agents communicate through a shared context using output keys
 4. **Tool-Based Actions**: Agents use tools (like `save_to_file`) to perform concrete actions
 5. **Adaptive Complexity**: The system scales from simple single-file applications to complex multi-module architectures
+6. **True Parallelism**: Uses ParallelAgent to run Backend, Frontend, and Test simultaneously
 
 ### Agent Communication Architecture
 
 ```mermaid
-graph TB
-    subgraph "User Interface"
-        CLI[CLI - main.py]
-        USER[User Requirements]
-    end
+graph TD
+    %% Input
+    USER[User Requirements<br/>+ YAML Configs] --> SEQ[SequentialAgent]
 
-    subgraph "Orchestration Layer"
-        ORCH[SequentialAgent Orchestrator]
-        FACTORY[AgentFactory]
-        CONFIG_A[agents.yaml]
-        CONFIG_T[tasks.yaml]
-    end
+    %% Phase 1: Design
+    SEQ --> EL[Phase 1: Engineering Lead]
+    EL -->|design| STATE[(Shared State)]
 
-    subgraph "Agent Layer"
-        EL[Engineering Lead<br/>output_key: design]
-        BE[Backend Engineer<br/>output_key: code]
-        FE[Frontend Engineer<br/>output_key: frontend]
-        TE[Test Engineer<br/>output_key: tests]
-    end
+    %% Phase 2: Parallel Implementation
+    SEQ --> PAR[Phase 2: ParallelAgent]
+    STATE --> PAR
 
-    subgraph "Tools"
-        SAVE[save_to_file]
-    end
+    PAR --> BE[Backend Engineer]
+    PAR --> FE[Frontend Engineer]
+    PAR --> TE[Test Engineer]
 
-    subgraph "Outputs"
-        OUT[Output Directory<br/>- DESIGN.md<br/>- Backend files<br/>- app.py<br/>- Test files]
-    end
+    %% Output
+    BE --> OUT[Output Directory]
+    FE --> OUT
+    TE --> OUT
+    EL --> OUT
 
-    USER --> CLI
-    CLI --> ORCH
-    FACTORY --> CONFIG_A
-    FACTORY --> CONFIG_T
-    FACTORY --> EL
-    FACTORY --> BE
-    FACTORY --> FE
-    FACTORY --> TE
-
-    ORCH --> EL
-    ORCH --> BE
-    ORCH --> FE
-    ORCH --> TE
-
-    EL --> SAVE
-    BE --> SAVE
-    FE --> SAVE
-    TE --> SAVE
-
-    EL -->|design| BE
-    EL -->|design| FE
-    EL -->|design| TE
-
-    SAVE --> OUT
-
+    %% Styling
+    style USER fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#000
+    style SEQ fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+    style PAR fill:#7B1FA2,stroke:#4A148C,stroke-width:2px,color:#fff
+    style STATE fill:#FFE0B2,stroke:#E65100,stroke-width:2px,color:#000
     style EL fill:#4A90E2,stroke:#2C5AA0,stroke-width:2px,color:#fff
     style BE fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
     style FE fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
     style TE fill:#E91E63,stroke:#AD1457,stroke-width:2px,color:#fff
-    style ORCH fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
-    style CONFIG_A fill:#FFF9C4,stroke:#F57F17,stroke-width:2px,color:#000
-    style CONFIG_T fill:#FFF9C4,stroke:#F57F17,stroke-width:2px,color:#000
-    style FACTORY fill:#E1BEE7,stroke:#7B1FA2,stroke-width:2px,color:#000
-    style SAVE fill:#B2DFDB,stroke:#00695C,stroke-width:2px,color:#000
     style OUT fill:#C8E6C9,stroke:#388E3C,stroke-width:2px,color:#000
 ```
 
-**Communication Flow:**
-- **AgentFactory** reads YAML configs and creates agents with their tools
-- **SequentialAgent** orchestrates the workflow
-- **Phase 1 (Design)**: Engineering Lead creates DESIGN.md
-- **Phase 2 (Implementation)**: Backend, Frontend, and Test all receive the design and work in parallel
-  - Backend Engineer implements the code based on design
-  - Frontend Engineer creates UI based on design
-  - Test Engineer writes tests based on design
-- Each agent produces output stored in a **context** with a unique `output_key`
-- All implementation agents access the **design** output from Engineering Lead through the `context` parameter
-- All agents use the **save_to_file** tool to write files to the output directory
+**How It Works:**
+
+1. **Input**: User provides requirements; YAML configs define agents and tasks
+2. **Phase 1 - Sequential**: SequentialAgent runs Engineering Lead first
+3. **Shared State**: Engineering Lead saves design to state with `output_key: "design"`
+4. **Phase 2 - Parallel**: SequentialAgent triggers ParallelAgent, which runs Backend, Frontend, and Test **simultaneously**
+5. **Output**: Each agent uses `save_to_file` tool to generate files
+
+**Key Architecture**:
+- **SequentialAgent** (outer): Ensures design completes before implementation starts
+- **ParallelAgent** (inner): Runs Backend, Frontend, Test at the same time
+- All three implementation agents read the same design from shared state
 
 ### Workflow Sequence
 
@@ -171,14 +143,14 @@ sequenceDiagram
 **Execution Steps:**
 
 1. **Initialization**: User provides requirements via CLI, which creates the workflow
-2. **Phase 1 - Design**: Engineering Lead analyzes requirements and creates DESIGN.md
-3. **Phase 2 - Parallel Implementation**: All three engineers work simultaneously from the same design:
+2. **Phase 1 - Design**: SequentialAgent runs Engineering Lead to create DESIGN.md
+3. **Phase 2 - Parallel Implementation**: SequentialAgent triggers ParallelAgent, which runs all three engineers **truly simultaneously**:
    - **Backend Engineer** reads the design and implements all backend modules
    - **Frontend Engineer** reads the design and creates Gradio UI
    - **Test Engineer** reads the design and creates comprehensive tests
 4. **Completion**: All files are saved to the output directory, workflow completes
 
-**Key Advantage**: Backend, Frontend, and Test engineers can work in parallel since they all depend only on the design, not on each other's output. This significantly improves efficiency.
+**Key Advantage**: Using **ParallelAgent** means Backend, Frontend, and Test engineers actually run at the same time (not just conceptually), significantly improving efficiency. They can do this because they all depend only on the design, not on each other's output.
 
 ### Key Design Principles
 
@@ -189,7 +161,7 @@ sequenceDiagram
 | **State Management** | Shared context with output keys enables agent communication |
 | **Configuration Over Code** | Agent behavior defined in YAML files, not hardcoded |
 | **Adaptive Scaling** | Architecture adapts from single-file to multi-module based on complexity |
-| **Parallel Processing** | After design phase, Backend/Frontend/Test work in parallel from the same design |
+| **True Parallel Processing** | ParallelAgent runs Backend/Frontend/Test simultaneously, not sequentially |
 | **Design-Driven Development** | Comprehensive design enables independent parallel implementation |
 
 ## Architecture
@@ -202,7 +174,7 @@ engineering-team/
 │   ├── __init__.py           # Package initialization
 │   ├── agents.py            # AgentFactory for creating agents from YAML configs
 │   ├── tools.py             # Utility tools (file I/O)
-│   ├── orchestrator.py      # SequentialAgent workflow orchestration
+│   ├── orchestrator.py      # Hybrid SequentialAgent + ParallelAgent orchestration
 │   ├── main.py             # Entry point
 │   └── config/
 │       ├── agents.yaml      # Agent definitions (role, goal, backstory, model, tools)
@@ -216,15 +188,15 @@ engineering-team/
 
 1. **Configuration-Based**: Agents and tasks are defined in YAML configuration files (`config/agents.yaml` and `config/tasks.yaml`)
 2. **AgentFactory**: Dynamically creates agents by reading YAML configs and combining agent properties with task instructions
-3. **Two-Phase Execution**:
-   - **Phase 1 (Design)**: Engineering Lead creates comprehensive design
-   - **Phase 2 (Implementation)**: Backend, Frontend, and Test engineers work in parallel from the same design
+3. **Two-Phase Execution** using hybrid orchestration:
+   - **Phase 1 (Design)**: SequentialAgent runs Engineering Lead to create comprehensive design
+   - **Phase 2 (Implementation)**: SequentialAgent triggers ParallelAgent to run Backend, Frontend, and Test simultaneously
 4. **Adaptive Architecture**: The Engineering Lead analyzes requirements and determines:
    - Whether a simple single-file or complex multi-file structure is appropriate
    - Folder organization (e.g., `models/`, `services/`, `tests/`)
    - File and class names based on the domain
 5. **Modular Code Generation**: Backend, Frontend, and Test engineers create multiple files as needed using the `save_to_file` tool
-6. **Parallel Work**: All implementation agents receive the design and can work independently without waiting for each other
+6. **True Parallel Execution**: ParallelAgent runs Backend, Frontend, and Test simultaneously; they all receive the design and execute at the same time
 7. **State Sharing**: Agents communicate via `output_key` and access previous results from context
 8. **LLM Models**: Uses `gemini-2.0-flash-exp` for all agents (configurable per agent in YAML)
 
