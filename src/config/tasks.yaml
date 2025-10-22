@@ -3,32 +3,46 @@ design_task:
     Take the high level requirements and prepare a detailed design for the engineer.
     Analyze what is being built and determine the appropriate file structure and architecture.
     For simple applications, a single module might suffice. For complex applications, design a modular structure with multiple files and folders.
+
+    IMPORTANT: At the beginning of your design, include a "Components Needed" section that clearly states:
+    - Backend/Core Implementation: REQUIRED (always needed)
+    - User Interface: REQUIRED or NOT REQUIRED (based on project type)
+    - Automated Tests: REQUIRED or NOT REQUIRED (production code needs tests, simple prototypes may not)
+
     Include in your design:
+    - Project type (CLI tool, library, API service, web app with UI, etc.)
+    - Components needed (Backend: YES, UI: YES/NO, Tests: YES/NO)
     - Recommended folder structure
     - File names for each module
     - Class and function definitions for each file
     - How the modules interact with each other
+
     Here are the requirements: {requirements}
     IMPORTANT: Only output the design in markdown format, laying out in detail the architecture, files, classes and functions.
     Save this design to a file named DESIGN.md
   expected_output: >
     A detailed design document in markdown format (DESIGN.md) that:
-    1. Specifies the folder structure (if complex)
-    2. Lists all files that should be created
-    3. Identifies the classes and functions in each file
-    4. Describes the functionality of each component
-    5. Explains how modules interact with each other
+    1. Starts with a "Components Needed" section (Backend, UI, Tests - each marked REQUIRED or NOT REQUIRED)
+    2. Identifies the project type
+    3. Specifies the folder structure (if complex)
+    4. Lists all files that should be created
+    5. Identifies the classes and functions in each file
+    6. Describes the functionality of each component
+    7. Explains how modules interact with each other
   agent: engineering_lead
   output_file: DESIGN.md
 
 code_task:
   description: >
+    Review the design specification to determine what backend/core implementation is needed.
+
     Implement the design described by the engineering lead.
     Follow the exact file structure, filenames, and class names specified in the design.
     Create as many files and folders as specified in the design - use save_to_file for each file you create.
     For complex applications, create a modular codebase with proper separation of concerns.
     For simple applications, a single file may suffice.
     The implementation must be completely self-contained and ready for testing and UI development.
+
     Here are the requirements: {requirements}
   expected_output: >
     A complete Python implementation following the design specification.
@@ -45,47 +59,76 @@ code_task:
 
 frontend_task:
   description: >
-    Create a Gradio UI based on the design specification.
-    Review the design document to understand the backend architecture, classes, and methods.
-    Create a simple, intuitive UI for interacting with the backend as specified in the design.
-    For simple applications, create app.py. For complex applications, you may create additional UI components or files.
-    Use save_to_file for each file you create.
-    Assume there is only 1 user, and keep the UI simple - just a prototype or demo.
-    Import the backend classes as specified in the design document.
+    Review the design specification and requirements to determine if a user interface is needed.
+
+    IMPORTANT: Check the "Components Needed" section in the design document:
+    - If "User Interface: NOT REQUIRED" → output "NO UI REQUIRED" and skip UI creation
+    - If the project is a CLI tool, library, API service, or backend-only service → output "NO UI REQUIRED"
+    - Only create a UI if the design explicitly states "User Interface: REQUIRED"
+
+    If UI is needed:
+    - Create a Gradio UI based on the design specification
+    - Review the design document to understand the backend architecture, classes, and methods
+    - Create a simple, intuitive UI for interacting with the backend as specified in the design
+    - For simple applications, create app.py. For complex applications, you may create additional UI components or files
+    - Use save_to_file for each file you create
+    - Assume there is only 1 user, and keep the UI simple - just a prototype or demo
+    - Import the backend classes as specified in the design document
+
     Here are the requirements: {requirements}
   expected_output: >
-    A Gradio UI (typically app.py) based on the design specification.
-    Create additional UI files if needed for complex applications using save_to_file.
-    The main app.py should be ready to run in the same directory as the backend modules.
-    It should properly import the backend classes as specified in the design and provide a functional interface.
-    Examples:
-    - save_to_file(app_code, "app.py")
-    - save_to_file(components_code, "ui/components.py")
-    IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
+    EITHER:
+    1. "NO UI REQUIRED" if the project doesn't need a graphical user interface (CLI tools, libraries, APIs, backend services)
+
+    OR:
+
+    2. A Gradio UI (typically app.py) based on the design specification if UI is needed.
+       Create additional UI files if needed for complex applications using save_to_file.
+       The main app.py should be ready to run in the same directory as the backend modules.
+       It should properly import the backend classes as specified in the design and provide a functional interface.
+       Examples:
+       - save_to_file(app_code, "app.py")
+       - save_to_file(components_code, "ui/components.py")
+       IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
   agent: frontend_engineer
   context:
     - design_task
 
 test_task:
   description: >
-    Write comprehensive unit tests based on the design specification.
-    Review the design document to understand the backend architecture, classes, methods, and expected behavior.
-    Create tests that cover all functionality specified in the design.
-    For simple applications, create a single test file (e.g., test_calculator.py).
-    For complex applications with multiple modules, create multiple test files (e.g., test_models.py, test_services.py, test_utils.py).
-    Use save_to_file for each test file you create.
-    Follow pytest conventions and use the test_<module_name>.py naming convention.
-    Import the backend classes as specified in the design document.
+    Review the design specification and requirements to determine if automated tests are needed.
+
+    IMPORTANT: Check the "Components Needed" section in the design document:
+    - If "Automated Tests: NOT REQUIRED" → output "NO TESTS REQUIRED" and skip test creation
+    - If this is a simple throwaway script, prototype, or example code → output "NO TESTS REQUIRED"
+    - Only create tests if the design explicitly states "Automated Tests: REQUIRED"
+
+    If tests are needed:
+    - Write comprehensive unit tests based on the design specification
+    - Review the design document to understand the backend architecture, classes, methods, and expected behavior
+    - Create tests that cover all functionality specified in the design
+    - For simple applications, create a single test file (e.g., test_calculator.py)
+    - For complex applications with multiple modules, create multiple test files (e.g., test_models.py, test_services.py, test_utils.py)
+    - Use save_to_file for each test file you create
+    - Follow pytest conventions and use the test_<module_name>.py naming convention
+    - Import the backend classes as specified in the design document
+
+    Here are the requirements: {requirements}
   expected_output: >
-    Comprehensive unit tests based on the design specification.
-    Create as many test files as needed to properly test all modules specified in the design.
-    Use save_to_file(content, filename) for each test file.
-    Examples:
-    - save_to_file(test_code, "test_calculator.py")
-    - save_to_file(model_tests, "tests/test_models.py")
-    - save_to_file(service_tests, "tests/test_services.py")
-    - save_to_file(conftest_code, "tests/conftest.py")
-    IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
+    EITHER:
+    1. "NO TESTS REQUIRED" if the design/requirements indicate tests are not needed (simple scripts, prototypes, examples)
+
+    OR:
+
+    2. Comprehensive unit tests based on the design specification.
+       Create as many test files as needed to properly test all modules specified in the design.
+       Use save_to_file(content, filename) for each test file.
+       Examples:
+       - save_to_file(test_code, "test_calculator.py")
+       - save_to_file(model_tests, "tests/test_models.py")
+       - save_to_file(service_tests, "tests/test_services.py")
+       - save_to_file(conftest_code, "tests/conftest.py")
+       IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
   agent: test_engineer
   context:
     - design_task

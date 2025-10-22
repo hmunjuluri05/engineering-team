@@ -38,30 +38,24 @@ The Engineering Team follows a **hybrid sequential-parallel multi-agent architec
 ```mermaid
 graph TD
     %% Input
-    USER[User Requirements<br/>+ YAML Configs] --> SEQ[SequentialAgent]
+    USER[User Requirements<br/>+ YAML Configs] --> EL
 
-    %% Phase 1: Design
-    SEQ --> EL[Phase 1: Engineering Lead]
-    EL -->|design| STATE[(Shared State)]
+    %% Phase 1: Design (Sequential)
+    EL[Phase 1:<br/>Engineering Lead] -->|design| STATE[(Shared State)]
+    EL --> OUT[Output Directory]
 
-    %% Phase 2: Parallel Implementation
-    SEQ --> PAR[Phase 2: ParallelAgent]
-    STATE --> PAR
-
-    PAR --> BE[Backend Engineer]
-    PAR --> FE[Frontend Engineer]
-    PAR --> TE[Test Engineer]
+    %% Phase 2: Implementation (Parallel)
+    STATE --> BE[Phase 2 Backend:<br/>Backend Engineer]
+    STATE --> FE[Phase 2 Frontend:<br/>Frontend Engineer]
+    STATE --> TE[Phase 2 Test:<br/>Test Engineer]
 
     %% Output
-    BE --> OUT[Output Directory]
+    BE --> OUT
     FE --> OUT
     TE --> OUT
-    EL --> OUT
 
     %% Styling
     style USER fill:#E3F2FD,stroke:#1976D2,stroke-width:2px,color:#000
-    style SEQ fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
-    style PAR fill:#7B1FA2,stroke:#4A148C,stroke-width:2px,color:#fff
     style STATE fill:#FFE0B2,stroke:#E65100,stroke-width:2px,color:#000
     style EL fill:#4A90E2,stroke:#2C5AA0,stroke-width:2px,color:#fff
     style BE fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
@@ -73,15 +67,15 @@ graph TD
 **How It Works:**
 
 1. **Input**: User provides requirements; YAML configs define agents and tasks
-2. **Phase 1 - Sequential**: SequentialAgent runs Engineering Lead first
+2. **Phase 1**: Engineering Lead analyzes requirements and creates comprehensive design
 3. **Shared State**: Engineering Lead saves design to state with `output_key: "design"`
-4. **Phase 2 - Parallel**: SequentialAgent triggers ParallelAgent, which runs Backend, Frontend, and Test **simultaneously**
-5. **Output**: Each agent uses `save_to_file` tool to generate files
+4. **Phase 2**: Backend, Frontend, and Test engineers run **in parallel**, all reading the same design
+5. **Output**: Each agent uses `save_to_file` tool to generate files in the output directory
 
 **Key Architecture**:
-- **SequentialAgent** (outer): Ensures design completes before implementation starts
-- **ParallelAgent** (inner): Runs Backend, Frontend, Test at the same time
-- All three implementation agents read the same design from shared state
+- Phase 1 completes before Phase 2 starts (sequential phases)
+- Within Phase 2, all three engineers run simultaneously (parallel execution)
+- All implementation agents read the same design from shared state
 
 ### Workflow Sequence
 
@@ -89,68 +83,54 @@ graph TD
 sequenceDiagram
     participant User
     participant CLI as main.py
-    participant Orch as Orchestrator
     participant Lead as Engineering Lead
     participant Back as Backend Engineer
     participant Front as Frontend Engineer
     participant Test as Test Engineer
-    participant FS as File System
+    participant OUT as Output Directory
 
     User->>CLI: python -m src.main --requirements req.txt
-    CLI->>CLI: Parse arguments & load requirements
-    CLI->>Orch: Create EngineeringTeam workflow
+    CLI->>CLI: Load requirements
 
-    rect rgba(74, 144, 226, 0.15)
-    Note over Orch,Lead: PHASE 1: DESIGN
-    Orch->>Lead: Execute design_task
-    Note over Lead: Analyze requirements<br/>Determine architecture<br/>Choose file structure
-    Lead->>FS: save_to_file("DESIGN.md", content)
-    Lead->>Orch: Return design (output_key: "design")
+    rect rgba(74, 144, 226, 0.2)
+    Note over CLI,Lead: PHASE 1: DESIGN
+    CLI->>Lead: Execute design task
+    Note over Lead: Analyze requirements<br/>Determine architecture
+    Lead->>OUT: DESIGN.md
     end
 
-    rect rgba(255, 152, 0, 0.15)
-    Note over Orch,Test: PHASE 2: PARALLEL IMPLEMENTATION (All agents receive same design)
+    rect rgba(76, 175, 80, 0.2)
+    Note over CLI,Test: PHASE 2: PARALLEL IMPLEMENTATION
 
-    par Backend Implementation
-        Orch->>Back: Execute code_task (context: design)
-        Note over Back: Read design from context<br/>Implement all modules<br/>Create folder structure
-        Back->>FS: save_to_file("models/user.py", ...)
-        Back->>FS: save_to_file("services/account.py", ...)
-        Back->>FS: save_to_file("main.py", ...)
-        Back->>Orch: Return code (output_key: "code")
-    and Frontend Development
-        Orch->>Front: Execute frontend_task (context: design)
-        Note over Front: Read design from context<br/>Create UI components<br/>Import classes per design
-        Front->>FS: save_to_file("app.py", ...)
-        Front->>FS: save_to_file("ui/components.py", ...)
-        Front->>Orch: Return frontend (output_key: "frontend")
-    and Test Development
-        Orch->>Test: Execute test_task (context: design)
-        Note over Test: Read design from context<br/>Create comprehensive tests<br/>Test all specified behavior
-        Test->>FS: save_to_file("tests/test_models.py", ...)
-        Test->>FS: save_to_file("tests/test_services.py", ...)
-        Test->>FS: save_to_file("tests/conftest.py", ...)
-        Test->>Orch: Return tests (output_key: "tests")
+    par Backend
+        CLI->>Back: Execute code task
+        Note over Back: Read design<br/>Implement modules
+        Back->>OUT: Backend files
+    and Frontend
+        CLI->>Front: Execute frontend task
+        Note over Front: Read design<br/>Create UI
+        Front->>OUT: app.py
+    and Tests
+        CLI->>Test: Execute test task
+        Note over Test: Read design<br/>Write tests
+        Test->>OUT: Test files
     end
     end
 
-    Note over Orch: Workflow Complete
-
-    Orch->>CLI: Return final result
-    CLI->>User: Display completion message
+    CLI->>User: Workflow complete
 ```
 
-**Execution Steps:**
+**Execution Flow:**
 
-1. **Initialization**: User provides requirements via CLI, which creates the workflow
-2. **Phase 1 - Design**: SequentialAgent runs Engineering Lead to create DESIGN.md
-3. **Phase 2 - Parallel Implementation**: SequentialAgent triggers ParallelAgent, which runs all three engineers **truly simultaneously**:
-   - **Backend Engineer** reads the design and implements all backend modules
-   - **Frontend Engineer** reads the design and creates Gradio UI
-   - **Test Engineer** reads the design and creates comprehensive tests
-4. **Completion**: All files are saved to the output directory, workflow completes
+1. **User Input**: Provide requirements file via CLI
+2. **Phase 1**: Engineering Lead analyzes requirements and creates DESIGN.md
+3. **Phase 2**: Backend, Frontend, and Test engineers work in parallel:
+   - All three agents read the same design from shared state
+   - Each implements their respective components simultaneously
+   - All output files are saved to the output directory
+4. **Completion**: Workflow finishes when all agents complete
 
-**Key Advantage**: Using **ParallelAgent** means Backend, Frontend, and Test engineers actually run at the same time (not just conceptually), significantly improving efficiency. They can do this because they all depend only on the design, not on each other's output.
+**Key Advantage**: Phase 2 agents run **truly in parallel**, not sequentially, significantly improving efficiency.
 
 ### Key Design Principles
 
