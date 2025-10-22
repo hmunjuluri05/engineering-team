@@ -147,15 +147,16 @@ class EngineeringTeam:
                     if hasattr(part, 'function_call') and part.function_call:
                         func_name = part.function_call.name
 
+                        # Get agent name from event or fall back to tracked current_agent
+                        agent_display = getattr(event, 'agent_name', None) or current_agent or "unknown"
+
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
                             args = part.function_call.args
                             if 'filename' in args:
-                                agent_display = current_agent if current_agent else "unknown"
                                 print(f"  📝 [{agent_display}] Saving: {args['filename']}")
                         else:
                             # For other tools, show basic info
-                            agent_display = current_agent if current_agent else "unknown"
                             print(f"  ⚙ [{agent_display}] Calling tool: {func_name}")
 
                     # Show text output (limit length for readability)
