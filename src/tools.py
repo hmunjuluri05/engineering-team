@@ -29,6 +29,9 @@ def save_to_file(content: str, filename: str, output_dir: Optional[str] = None) 
     # Construct full file path
     file_path = Path(output_dir) / filename
 
+    # Create parent directories if they don't exist (e.g., for "src/main.py", create "src" folder)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
     # Write content to file
     with open(file_path, 'w', encoding='utf-8') as f:
         f.write(content)

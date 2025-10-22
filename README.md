@@ -310,30 +310,39 @@ python -m src.main -r requirements.txt -o build
 
 ### Expected Output
 
-The application generates files in the specified output directory based on the complexity of your requirements:
+The application generates files in a well-organized folder structure based on your requirements:
+
+**Standard Folder Structure:**
+
+```
+output/
+├── README.md                    # Installation and usage instructions
+├── requirements.txt             # Python dependencies
+├── app.py                       # Gradio UI (if UI is needed)
+├── docs/
+│   └── DESIGN.md               # Architecture and design specification
+├── src/
+│   ├── main.py                 # Main application code
+│   ├── models/                 # Data models (for complex apps)
+│   ├── services/               # Business logic (for complex apps)
+│   └── ui/                     # UI components (for complex UIs)
+└── tests/
+    ├── test_main.py            # Unit tests (if tests are needed)
+    ├── test_models.py          # Model tests (for complex apps)
+    └── conftest.py             # Pytest fixtures (if needed)
+```
 
 **Always generated:**
-1. **DESIGN.md** - Comprehensive design document specifying architecture and file structure
-2. **requirements.txt** - Python dependencies needed to run the generated application
+- `docs/DESIGN.md` - Comprehensive design document
+- `README.md` - How to install and run the application
+- `requirements.txt` - Python dependencies
+- `src/` - Backend Python code
 
-**For simple applications:**
-3. **Single backend file** (e.g., `calculator.py`) - Complete implementation in one module
-4. **app.py** - Gradio UI to demonstrate the backend (if UI is needed)
-5. **Single test file** (e.g., `test_calculator.py`) - Unit tests (if tests are needed)
+**Conditionally generated:**
+- `app.py` - Gradio UI (only if UI is needed per requirements)
+- `tests/` - Unit tests (only if tests are specified in design)
 
-**For complex applications:**
-3. **Multiple backend files and folders** - Modular structure, for example:
-   - `models/user.py`, `models/transaction.py`
-   - `services/account_service.py`
-   - `utils/validators.py`
-   - `main.py` or entry point
-4. **app.py** (and potentially UI components) - Gradio interface (if UI is needed)
-5. **Multiple test files** - Comprehensive test suite (if tests are needed), for example:
-   - `tests/test_models.py`
-   - `tests/test_services.py`
-   - `tests/conftest.py`
-
-The Engineering Lead agent determines the appropriate structure based on your requirements.
+The Engineering Lead agent determines the appropriate structure and complexity based on your requirements.
 
 ### Creating a Requirements File
 
