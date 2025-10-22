@@ -131,22 +131,29 @@ class EngineeringTeam:
         ):
             # Debug: Print all event attributes to understand structure
             # Uncomment to diagnose event flow
-            # print(f"[EVENT] type={type(event).__name__}, attrs={[a for a in dir(event) if not a.startswith('_')]}")
+            if self.verbose and hasattr(event, 'content') and event.content:
+                for part in event.content.parts if hasattr(event.content, 'parts') else []:
+                    if hasattr(part, 'function_call') and part.function_call:
+                        print(f"[EVENT DEBUG] type={type(event).__name__}, has_agent_name={hasattr(event, 'agent_name')}, agent_name={getattr(event, 'agent_name', 'N/A')}")
 
             # Track and display agent execution progress
-            if hasattr(event, 'agent_name') and event.agent_name:
-                # Always update current_agent when we see an agent_name
-                display_header = (event.agent_name != current_agent)
-                current_agent = event.agent_name
+            # Check if event has agent_name attribute (even if empty/None)
+            if hasattr(event, 'agent_name'):
+                event_agent_name = event.agent_name
 
-                # Only display the header when agent changes
-                if display_header:
-                    if self.verbose:
-                        print(f"\n{'='*60}")
-                        print(f"▶ Agent Active: {event.agent_name.upper()}")
-                        print(f"{'='*60}")
-                    else:
-                        print(f"\n▶ {event.agent_name}")
+                # Update current_agent if we have a non-empty agent_name
+                if event_agent_name:
+                    display_header = (event_agent_name != current_agent)
+                    current_agent = event_agent_name
+
+                    # Only display the header when agent changes
+                    if display_header:
+                        if self.verbose:
+                            print(f"\n{'='*60}")
+                            print(f"▶ Agent Active: {event_agent_name.upper()}")
+                            print(f"{'='*60}")
+                        else:
+                            print(f"\n▶ {event_agent_name}")
 
             # Show when tools are being called (e.g., file saves)
             if self.verbose and hasattr(event, 'content') and event.content:
