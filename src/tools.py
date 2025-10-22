@@ -1,6 +1,5 @@
 """Tools for file output and utilities."""
 
-import os
 from pathlib import Path
 from typing import Optional
 

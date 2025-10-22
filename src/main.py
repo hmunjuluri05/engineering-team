@@ -2,7 +2,6 @@
 """Main entry point for the Engineering Team ADK application."""
 
 import argparse
-import os
 import sys
 import warnings
 from pathlib import Path
@@ -96,7 +95,7 @@ def run():
     )
 
     # Run the workflow
-    print("\nExecuting sequential workflow...")
+    print("\nExecuting workflow...")
     result = team.run()
 
     print("\n" + "=" * 80)
@@ -105,9 +104,9 @@ def run():
     print(f"\nCheck the '{output_dir}' directory for generated files:")
     print(f"  - DESIGN.md - Architecture and design specification")
     print(f"  - Backend implementation (one or more Python modules)")
-    print(f"  - Gradio UI (app.py and potentially UI components)")
-    print(f"  - Unit tests (one or more test files)")
-    print(f"\nThe file structure depends on application complexity as determined by the Engineering Lead.")
+    print(f"  - Gradio UI (if required by the project)")
+    print(f"  - Unit tests (if specified in the design)")
+    print(f"\nThe file structure and components depend on project requirements as determined by the Engineering Lead.")
     print("=" * 80)
 
     return result
