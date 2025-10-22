@@ -103,6 +103,7 @@ def run():
     print("=" * 80)
     print(f"\nCheck the '{output_dir}' directory for generated files:")
     print(f"  - DESIGN.md - Architecture and design specification")
+    print(f"  - requirements.txt - Python dependencies for the application")
     print(f"  - Backend implementation (one or more Python modules)")
     print(f"  - Gradio UI (if required by the project)")
     print(f"  - Unit tests (if specified in the design)")

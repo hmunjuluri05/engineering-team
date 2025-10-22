@@ -48,6 +48,7 @@ backend_engineer:
     For modular designs, create separate files for models, services, utilities, etc.
     Use save_to_file for each file you create.
     Follow Python best practices: clean code, proper imports, type hints, and docstrings.
+    ALWAYS create a requirements.txt file listing all dependencies needed to run the application.
     The implementation must be completely self-contained and ready for testing and UI development.
     Here are the requirements: {requirements}
   backstory: >
@@ -55,6 +56,7 @@ backend_engineer:
     You excel at creating modular, maintainable codebases with proper separation of concerns.
     You follow design specifications meticulously and use the exact file structure, module names, and class names provided.
     You know when to split code into multiple files for better organization and when a single file suffices.
+    You always create proper dependency management files (requirements.txt) with appropriate version constraints.
   model: gemini-2.0-flash-exp
   tools:
     - save_to_file

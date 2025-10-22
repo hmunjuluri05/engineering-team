@@ -314,20 +314,21 @@ The application generates files in the specified output directory based on the c
 
 **Always generated:**
 1. **DESIGN.md** - Comprehensive design document specifying architecture and file structure
+2. **requirements.txt** - Python dependencies needed to run the generated application
 
 **For simple applications:**
-2. **Single backend file** (e.g., `calculator.py`) - Complete implementation in one module
-3. **app.py** - Gradio UI to demonstrate the backend
-4. **Single test file** (e.g., `test_calculator.py`) - Unit tests
+3. **Single backend file** (e.g., `calculator.py`) - Complete implementation in one module
+4. **app.py** - Gradio UI to demonstrate the backend (if UI is needed)
+5. **Single test file** (e.g., `test_calculator.py`) - Unit tests (if tests are needed)
 
 **For complex applications:**
-2. **Multiple backend files and folders** - Modular structure, for example:
+3. **Multiple backend files and folders** - Modular structure, for example:
    - `models/user.py`, `models/transaction.py`
    - `services/account_service.py`
    - `utils/validators.py`
    - `main.py` or entry point
-3. **app.py** (and potentially UI components) - Gradio interface
-4. **Multiple test files** - Comprehensive test suite, for example:
+4. **app.py** (and potentially UI components) - Gradio interface (if UI is needed)
+5. **Multiple test files** - Comprehensive test suite (if tests are needed), for example:
    - `tests/test_models.py`
    - `tests/test_services.py`
    - `tests/conftest.py`

@@ -13,9 +13,10 @@ design_task:
     - Project type (CLI tool, library, API service, web app with UI, etc.)
     - Components needed (Backend: YES, UI: YES/NO, Tests: YES/NO)
     - Recommended folder structure
-    - File names for each module
+    - File names for each module (including requirements.txt for dependencies)
     - Class and function definitions for each file
     - How the modules interact with each other
+    - Required dependencies for the application (to be listed in requirements.txt)
 
     Here are the requirements: {requirements}
     IMPORTANT: Only output the design in markdown format, laying out in detail the architecture, files, classes and functions.
@@ -25,10 +26,11 @@ design_task:
     1. Starts with a "Components Needed" section (Backend, UI, Tests - each marked REQUIRED or NOT REQUIRED)
     2. Identifies the project type
     3. Specifies the folder structure (if complex)
-    4. Lists all files that should be created
+    4. Lists all files that should be created (including requirements.txt)
     5. Identifies the classes and functions in each file
     6. Describes the functionality of each component
     7. Explains how modules interact with each other
+    8. Lists required Python dependencies for the application
   agent: engineering_lead
   output_file: DESIGN.md
 
@@ -43,16 +45,29 @@ code_task:
     For simple applications, a single file may suffice.
     The implementation must be completely self-contained and ready for testing and UI development.
 
+    IMPORTANT: Create a requirements.txt file listing all Python dependencies needed to run the application.
+    - Include dependencies based on what's specified in the design (e.g., gradio for UI apps, pytest for tested apps)
+    - Use appropriate version specifiers (e.g., gradio>=4.0.0)
+    - One dependency per line with version constraints
+
     Here are the requirements: {requirements}
   expected_output: >
     A complete Python implementation following the design specification.
     Create all files and folders as specified in the design document.
     Use save_to_file(content, filename) for each file you create.
+
+    MUST include:
+    - requirements.txt with all necessary dependencies
+    - All Python module files specified in the design
+
     Examples:
+    - save_to_file(requirements_content, "requirements.txt")
     - save_to_file(code, "main.py")
     - save_to_file(models_code, "models.py")
     - save_to_file(utils_code, "utils/helpers.py")
-    IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
+
+    IMPORTANT: For Python files, output ONLY raw Python code without markdown formatting or code block delimiters.
+    For requirements.txt, output plain text with one dependency per line.
   agent: backend_engineer
   context:
     - design_task
