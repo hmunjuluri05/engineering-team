@@ -169,7 +169,13 @@ class EngineeringTeam:
                         if agent_display == "unknown":
                             # Show all event attributes to understand what's available
                             print(f"  [DEBUG] Event type: {type(event).__name__}")
-                            print(f"  [DEBUG] Event dir: {[a for a in dir(event) if not a.startswith('_')][:10]}")
+                            all_attrs = [a for a in dir(event) if not a.startswith('_')]
+                            print(f"  [DEBUG] All event attributes: {all_attrs}")
+                            # Check for any attribute that might contain agent info
+                            for attr in ['source', 'metadata', 'author']:
+                                if hasattr(event, attr):
+                                    val = getattr(event, attr)
+                                    print(f"  [DEBUG] event.{attr} = {val}")
 
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
