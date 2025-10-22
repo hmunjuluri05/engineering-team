@@ -129,16 +129,6 @@ class EngineeringTeam:
             session_id=session.id,
             new_message=content
         ):
-            # Debug: Print event info when we see a function call
-            if self.verbose and hasattr(event, 'content') and event.content:
-                if hasattr(event.content, 'parts'):
-                    for part in event.content.parts:
-                        if hasattr(part, 'function_call') and part.function_call:
-                            print(f"[EVENT DEBUG] Event type: {type(event).__name__}")
-                            print(f"[EVENT DEBUG] Has agent_name attr: {hasattr(event, 'agent_name')}")
-                            print(f"[EVENT DEBUG] agent_name value: {getattr(event, 'agent_name', 'ATTR_NOT_FOUND')}")
-                            print(f"[EVENT DEBUG] current_agent value: {current_agent}")
-                            break  # Only debug once per event
 
             # Track and display agent execution progress
             # Check if event has agent_name attribute (even if empty/None)
@@ -170,13 +160,16 @@ class EngineeringTeam:
                         event_agent = getattr(event, 'agent_name', None)
                         agent_display = event_agent or current_agent or "unknown"
 
-                        # Debug: Enable to diagnose agent name issues
+                        # Debug: Always show what we have
+                        print(f"  [DEBUG] Processing tool call: {func_name}")
+                        print(f"  [DEBUG] event.agent_name = {event_agent}")
+                        print(f"  [DEBUG] current_agent = {current_agent}")
+                        print(f"  [DEBUG] agent_display = {agent_display}")
+
                         if agent_display == "unknown":
-                            # Check for other possible agent identifiers
-                            all_attrs = {attr: getattr(event, attr, None) for attr in dir(event)
-                                        if not attr.startswith('_') and 'agent' in attr.lower()}
-                            print(f"  [DEBUG] event.agent_name={event_agent}, current_agent={current_agent}")
-                            print(f"  [DEBUG] Other agent attrs: {all_attrs}")
+                            # Show all event attributes to understand what's available
+                            print(f"  [DEBUG] Event type: {type(event).__name__}")
+                            print(f"  [DEBUG] Event dir: {[a for a in dir(event) if not a.startswith('_')][:10]}")
 
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
