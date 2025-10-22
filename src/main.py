@@ -25,8 +25,11 @@ Examples:
   # Specify custom output directory
   python -m src.main --requirements my-project.txt --output my_output
 
+  # Quiet mode (minimal progress information)
+  python -m src.main --requirements requirements.txt --quiet
+
   # Using short flags
-  python -m src.main -r requirements.txt -o build
+  python -m src.main -r requirements.txt -o build -q
 """
     )
 
@@ -42,6 +45,12 @@ Examples:
         type=str,
         default='output',
         help='Output directory for generated files (default: output)'
+    )
+
+    parser.add_argument(
+        '--quiet', '-q',
+        action='store_true',
+        help='Quiet mode - show minimal progress information'
     )
 
     return parser.parse_args()
@@ -91,7 +100,8 @@ def run():
 
     # Create the engineering team
     team = EngineeringTeam(
-        requirements=requirements
+        requirements=requirements,
+        verbose=not args.quiet  # Verbose by default, unless --quiet is specified
     )
 
     # Run the workflow

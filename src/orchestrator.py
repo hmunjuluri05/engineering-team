@@ -23,7 +23,8 @@ class EngineeringTeam:
     """
 
     def __init__(self, requirements: str,
-                 agents_config: str = None, tasks_config: str = None):
+                 agents_config: str = None, tasks_config: str = None,
+                 verbose: bool = True):
         """
         Initialize the Engineering Team.
 
@@ -31,8 +32,10 @@ class EngineeringTeam:
             requirements: The project requirements
             agents_config: Path to agents.yaml (defaults to src/config/agents.yaml)
             tasks_config: Path to tasks.yaml (defaults to src/config/tasks.yaml)
+            verbose: Show detailed progress information (default: True)
         """
         self.requirements = requirements
+        self.verbose = verbose
 
         # Set default config paths if not provided
         if agents_config is None:
@@ -119,18 +122,49 @@ class EngineeringTeam:
         # Run the complete workflow
         content = types.Content(parts=[types.Part(text=user_query)])
         final_result = None
+        current_agent = None
 
         for event in runner.run(
             user_id="user1",
             session_id=session.id,
             new_message=content
         ):
-            # Print progress as agents execute
+            # Track and display agent execution progress
             if hasattr(event, 'agent_name') and event.agent_name:
-                print(f"\n>>> Agent: {event.agent_name}")
+                if event.agent_name != current_agent:
+                    current_agent = event.agent_name
+                    if self.verbose:
+                        print(f"\n{'='*60}")
+                        print(f"▶ Agent Active: {event.agent_name.upper()}")
+                        print(f"{'='*60}")
+                    else:
+                        print(f"\n▶ {event.agent_name}")
+
+            # Show when tools are being called (e.g., file saves)
+            if self.verbose and hasattr(event, 'content') and event.content:
+                for part in event.content.parts:
+                    # Check for tool calls (function calls)
+                    if hasattr(part, 'function_call') and part.function_call:
+                        func_name = part.function_call.name
+                        print(f"  ⚙ Calling tool: {func_name}")
+
+                        # Show filename for save_to_file calls
+                        if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
+                            args = part.function_call.args
+                            if 'filename' in args:
+                                print(f"    📝 Saving: {args['filename']}")
+
+                    # Show text output (limit length for readability)
+                    if hasattr(part, 'text') and part.text and len(part.text.strip()) > 0:
+                        text_preview = part.text.strip()[:100]
+                        if len(part.text) > 100:
+                            text_preview += "..."
+                        print(f"  💬 {text_preview}")
 
             if event.is_final_response() and event.content:
                 final_result = event.content.parts[0].text
+                if self.verbose:
+                    print(f"\n✓ Workflow completed successfully")
 
         # Return results
         result = {
