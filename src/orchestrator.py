@@ -146,13 +146,17 @@ class EngineeringTeam:
                     # Check for tool calls (function calls)
                     if hasattr(part, 'function_call') and part.function_call:
                         func_name = part.function_call.name
-                        print(f"  ⚙ Calling tool: {func_name}")
 
-                        # Show filename for save_to_file calls
+                        # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
                             args = part.function_call.args
                             if 'filename' in args:
-                                print(f"    📝 Saving: {args['filename']}")
+                                agent_display = current_agent if current_agent else "unknown"
+                                print(f"  📝 [{agent_display}] Saving: {args['filename']}")
+                        else:
+                            # For other tools, show basic info
+                            agent_display = current_agent if current_agent else "unknown"
+                            print(f"  ⚙ [{agent_display}] Calling tool: {func_name}")
 
                     # Show text output (limit length for readability)
                     if hasattr(part, 'text') and part.text and len(part.text.strip()) > 0:

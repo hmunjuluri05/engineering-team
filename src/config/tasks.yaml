@@ -12,7 +12,13 @@ design_task:
     Include in your design:
     - Project type (CLI tool, library, API service, web app with UI, etc.)
     - Components needed (Backend: YES, UI: YES/NO, Tests: YES/NO)
-    - Recommended folder structure
+    - CRITICAL FOLDER STRUCTURE (use these EXACT folder names - do NOT create custom folder names):
+      * ALL Python source code MUST go in: src/ folder
+      * ALL test files MUST go in: tests/ folder
+      * Design document MUST go in: docs/ folder
+      * UI file (app.py) and requirements.txt MUST go in: ROOT folder
+      * For complex apps, you can create subfolders WITHIN src/ (e.g., src/models/, src/services/)
+      * NEVER create custom top-level folders like "task_manager/" or "my_app/" - always use "src/"
     - File names for each module (including requirements.txt for dependencies)
     - Class and function definitions for each file
     - How the modules interact with each other
@@ -26,8 +32,9 @@ design_task:
     A detailed design document in markdown format (docs/DESIGN.md) that:
     1. Starts with a "Components Needed" section (Backend, UI, Tests - each marked REQUIRED or NOT REQUIRED)
     2. Identifies the project type
-    3. Specifies the folder structure (if complex)
-    4. Lists all files that should be created (including requirements.txt)
+    3. Specifies the STANDARD folder structure using ONLY these folders: src/, tests/, docs/, and ROOT
+       NEVER use custom folder names like "task_manager/" or "my_app/" - ALWAYS use "src/" for source code
+    4. Lists all files that should be created with proper paths (e.g., src/main.py, src/models/task.py, requirements.txt)
     5. Identifies the classes and functions in each file
     6. Describes the functionality of each component
     7. Explains how modules interact with each other

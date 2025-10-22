@@ -154,10 +154,9 @@ class AgentFactory:
         if 'output_file' in task_config:
             output_file = task_config['output_file'].strip()
             output_file = output_file.format(requirements=requirements)
-            # Extract just the filename from the path
-            filename = Path(output_file).name
+            # Use the full path (e.g., "docs/DESIGN.md") not just the filename
             instruction_parts.append(
-                f"\n\nWhen you complete your work, save it using the save_to_file tool with filename \"{filename}\"."
+                f"\n\nWhen you complete your work, save it using the save_to_file tool with filename \"{output_file}\"."
             )
 
         return "\n".join(instruction_parts)
