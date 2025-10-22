@@ -20,9 +20,9 @@ design_task:
 
     Here are the requirements: {requirements}
     IMPORTANT: Only output the design in markdown format, laying out in detail the architecture, files, classes and functions.
-    Save this design to a file named DESIGN.md
+    Save this design to a file named docs/DESIGN.md (the docs folder will be created automatically)
   expected_output: >
-    A detailed design document in markdown format (DESIGN.md) that:
+    A detailed design document in markdown format (docs/DESIGN.md) that:
     1. Starts with a "Components Needed" section (Backend, UI, Tests - each marked REQUIRED or NOT REQUIRED)
     2. Identifies the project type
     3. Specifies the folder structure (if complex)
@@ -32,7 +32,7 @@ design_task:
     7. Explains how modules interact with each other
     8. Lists required Python dependencies for the application
   agent: engineering_lead
-  output_file: DESIGN.md
+  output_file: docs/DESIGN.md
 
 code_task:
   description: >
@@ -45,7 +45,18 @@ code_task:
     For simple applications, a single file may suffice.
     The implementation must be completely self-contained and ready for testing and UI development.
 
-    IMPORTANT: Create a requirements.txt file listing all Python dependencies needed to run the application.
+    IMPORTANT - File Organization:
+    - Save ALL Python code files in the src/ folder (e.g., src/main.py, src/models/user.py)
+    - Save requirements.txt in the ROOT folder (not in src/)
+    - Create a README.md in the ROOT folder with:
+      * Project description
+      * Installation instructions (pip install -r requirements.txt)
+      * How to run the application
+      * Project structure overview
+      * Any configuration needed
+
+    IMPORTANT - Dependencies:
+    - Create requirements.txt listing all Python dependencies needed to run the application
     - Include dependencies based on what's specified in the design (e.g., gradio for UI apps, pytest for tested apps)
     - Use appropriate version specifiers (e.g., gradio>=4.0.0)
     - One dependency per line with version constraints
@@ -56,18 +67,22 @@ code_task:
     Create all files and folders as specified in the design document.
     Use save_to_file(content, filename) for each file you create.
 
-    MUST include:
-    - requirements.txt with all necessary dependencies
-    - All Python module files specified in the design
+    MUST include (in order of importance):
+    1. requirements.txt in ROOT folder with all necessary dependencies
+    2. README.md in ROOT folder with installation and usage instructions
+    3. All Python code files in src/ folder
 
     Examples:
     - save_to_file(requirements_content, "requirements.txt")
-    - save_to_file(code, "main.py")
-    - save_to_file(models_code, "models.py")
-    - save_to_file(utils_code, "utils/helpers.py")
+    - save_to_file(readme_content, "README.md")
+    - save_to_file(code, "src/main.py")
+    - save_to_file(models_code, "src/models/user.py")
+    - save_to_file(utils_code, "src/utils/helpers.py")
 
-    IMPORTANT: For Python files, output ONLY raw Python code without markdown formatting or code block delimiters.
-    For requirements.txt, output plain text with one dependency per line.
+    IMPORTANT:
+    - For Python files, output ONLY raw Python code without markdown formatting or code block delimiters
+    - For requirements.txt, output plain text with one dependency per line
+    - For README.md, output in markdown format with clear sections
   agent: backend_engineer
   context:
     - design_task
@@ -85,10 +100,11 @@ frontend_task:
     - Create a Gradio UI based on the design specification
     - Review the design document to understand the backend architecture, classes, and methods
     - Create a simple, intuitive UI for interacting with the backend as specified in the design
-    - For simple applications, create app.py. For complex applications, you may create additional UI components or files
+    - IMPORTANT: Save the main UI file as app.py in the ROOT folder (not in src/)
+    - For complex applications, you may create additional UI components in src/ui/ folder
     - Use save_to_file for each file you create
     - Assume there is only 1 user, and keep the UI simple - just a prototype or demo
-    - Import the backend classes as specified in the design document
+    - Import the backend classes from src/ folder (e.g., from src.models import User)
 
     Here are the requirements: {requirements}
   expected_output: >
@@ -99,11 +115,11 @@ frontend_task:
 
     2. A Gradio UI (typically app.py) based on the design specification if UI is needed.
        Create additional UI files if needed for complex applications using save_to_file.
-       The main app.py should be ready to run in the same directory as the backend modules.
+       The main app.py should be in the ROOT folder and import from src/.
        It should properly import the backend classes as specified in the design and provide a functional interface.
        Examples:
-       - save_to_file(app_code, "app.py")
-       - save_to_file(components_code, "ui/components.py")
+       - save_to_file(app_code, "app.py")  # Main UI in ROOT
+       - save_to_file(components_code, "src/ui/components.py")  # UI components in src/ui/
        IMPORTANT: For each file, output ONLY raw Python code without markdown formatting or code block delimiters.
   agent: frontend_engineer
   context:
@@ -122,11 +138,13 @@ test_task:
     - Write comprehensive unit tests based on the design specification
     - Review the design document to understand the backend architecture, classes, methods, and expected behavior
     - Create tests that cover all functionality specified in the design
-    - For simple applications, create a single test file (e.g., test_calculator.py)
-    - For complex applications with multiple modules, create multiple test files (e.g., test_models.py, test_services.py, test_utils.py)
+    - IMPORTANT: Save ALL test files in the tests/ folder
+    - For simple applications, create a single test file (e.g., tests/test_main.py)
+    - For complex applications with multiple modules, create multiple test files (e.g., tests/test_models.py, tests/test_services.py)
+    - Create tests/conftest.py for pytest fixtures if needed
     - Use save_to_file for each test file you create
     - Follow pytest conventions and use the test_<module_name>.py naming convention
-    - Import the backend classes as specified in the design document
+    - Import the backend classes from src/ folder (e.g., from src.models import User)
 
     Here are the requirements: {requirements}
   expected_output: >
@@ -139,7 +157,7 @@ test_task:
        Create as many test files as needed to properly test all modules specified in the design.
        Use save_to_file(content, filename) for each test file.
        Examples:
-       - save_to_file(test_code, "test_calculator.py")
+       - save_to_file(test_code, "tests/test_main.py")  # All tests in tests/ folder
        - save_to_file(model_tests, "tests/test_models.py")
        - save_to_file(service_tests, "tests/test_services.py")
        - save_to_file(conftest_code, "tests/conftest.py")
