@@ -129,6 +129,10 @@ class EngineeringTeam:
             session_id=session.id,
             new_message=content
         ):
+            # Debug: Print all event attributes to understand structure
+            # Uncomment to diagnose event flow
+            # print(f"[EVENT] type={type(event).__name__}, attrs={[a for a in dir(event) if not a.startswith('_')]}")
+
             # Track and display agent execution progress
             if hasattr(event, 'agent_name') and event.agent_name:
                 # Always update current_agent when we see an agent_name
@@ -157,7 +161,11 @@ class EngineeringTeam:
 
                         # Debug: Enable to diagnose agent name issues
                         if agent_display == "unknown":
-                            print(f"  [DEBUG] event.agent_name={event_agent}, current_agent={current_agent}, using={agent_display}")
+                            # Check for other possible agent identifiers
+                            all_attrs = {attr: getattr(event, attr, None) for attr in dir(event)
+                                        if not attr.startswith('_') and 'agent' in attr.lower()}
+                            print(f"  [DEBUG] event.agent_name={event_agent}, current_agent={current_agent}")
+                            print(f"  [DEBUG] Other agent attrs: {all_attrs}")
 
                         # Enhanced logging for save_to_file: show agent name and filename
                         if func_name == 'save_to_file' and hasattr(part.function_call, 'args'):
