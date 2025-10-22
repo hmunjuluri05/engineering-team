@@ -16,7 +16,8 @@ design_task:
     - File names for each module (including requirements.txt for dependencies)
     - Class and function definitions for each file
     - How the modules interact with each other
-    - Required dependencies for the application (to be listed in requirements.txt)
+    - CRITICAL: A "Dependencies" section listing ALL required Python packages with specific versions
+      (e.g., gradio>=4.0.0 for UI apps, pytest>=7.0.0 for tested apps, plus any domain-specific libraries)
 
     Here are the requirements: {requirements}
     IMPORTANT: Only output the design in markdown format, laying out in detail the architecture, files, classes and functions.
@@ -30,7 +31,8 @@ design_task:
     5. Identifies the classes and functions in each file
     6. Describes the functionality of each component
     7. Explains how modules interact with each other
-    8. Lists required Python dependencies for the application
+    8. CRITICAL: Includes a "Dependencies" section with ALL required Python packages and versions
+       (e.g., "gradio>=4.0.0", "pytest>=7.0.0", etc.) - this must not be omitted!
   agent: engineering_lead
   output_file: docs/DESIGN.md
 
@@ -55,11 +57,15 @@ code_task:
       * Project structure overview
       * Any configuration needed
 
-    IMPORTANT - Dependencies:
-    - Create requirements.txt listing all Python dependencies needed to run the application
-    - Include dependencies based on what's specified in the design (e.g., gradio for UI apps, pytest for tested apps)
-    - Use appropriate version specifiers (e.g., gradio>=4.0.0)
+    CRITICAL - Dependencies (requirements.txt):
+    - You MUST create a requirements.txt file - it cannot be empty!
+    - List ALL Python dependencies needed to run the application
+    - ALWAYS include gradio if the design specifies a UI
+    - ALWAYS include pytest if the design specifies tests
+    - Include any other libraries needed (e.g., pandas, requests, flask, etc.)
+    - Use appropriate version specifiers (e.g., gradio>=4.0.0, pytest>=7.0.0)
     - One dependency per line with version constraints
+    - Minimum requirements.txt should have at least gradio (if UI) or the main libraries needed
 
     Here are the requirements: {requirements}
   expected_output: >
@@ -69,11 +75,14 @@ code_task:
 
     MUST include (in order of importance):
     1. requirements.txt in ROOT folder with all necessary dependencies
+       - CRITICAL: This file MUST NOT be empty!
+       - Must include at least gradio>=4.0.0 (if UI needed) and any other dependencies
+       - Example content: "gradio>=4.0.0\npytest>=7.0.0" (if both UI and tests needed)
     2. README.md in ROOT folder with installation and usage instructions
     3. All Python code files in src/ folder
 
     Examples:
-    - save_to_file(requirements_content, "requirements.txt")
+    - save_to_file("gradio>=4.0.0\n", "requirements.txt")  # Minimum for UI apps
     - save_to_file(readme_content, "README.md")
     - save_to_file(code, "src/main.py")
     - save_to_file(models_code, "src/models/user.py")
@@ -81,7 +90,7 @@ code_task:
 
     IMPORTANT:
     - For Python files, output ONLY raw Python code without markdown formatting or code block delimiters
-    - For requirements.txt, output plain text with one dependency per line
+    - For requirements.txt, output plain text with one dependency per line (NEVER empty!)
     - For README.md, output in markdown format with clear sections
   agent: backend_engineer
   context:

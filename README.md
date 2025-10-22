@@ -89,7 +89,7 @@ sequenceDiagram
     participant Test as Test Engineer
     participant OUT as Output Directory
 
-    User->>CLI: python -m src.main --requirements req.txt
+    User->>CLI: python -m src.main --requirements req.txt --output output
     CLI->>CLI: Load requirements
 
     rect rgba(74, 144, 226, 0.2)
@@ -270,10 +270,10 @@ Build a todo list application with the following features:
 Then run:
 
 ```bash
-python -m src.main --requirements my_requirements.txt
+python -m src.main --requirements my_requirements.txt --output output
 ```
 
-This will generate files in the `output/` directory. The Engineering Lead agent will determine appropriate file and class names based on the requirements.
+This will generate files in the specified output directory. The Engineering Lead agent will determine appropriate file and class names based on the requirements.
 
 ### Specifying Output Directory
 
@@ -287,7 +287,8 @@ python -m src.main --requirements my_requirements.txt --output my_project
 
 ```
 --requirements, -r  Path to a text file containing project requirements (required)
---output, -o        Output directory for generated files (default: output)
+--output, -o        Output directory for generated files (required)
+--quiet, -q         Quiet mode - show minimal progress information
 --help, -h          Show help message
 ```
 
@@ -295,7 +296,7 @@ python -m src.main --requirements my_requirements.txt --output my_project
 
 **Example 1: Basic usage with requirements file**
 ```bash
-python -m src.main --requirements todo_requirements.txt
+python -m src.main --requirements todo_requirements.txt --output todo_app
 ```
 
 **Example 2: Custom output directory**

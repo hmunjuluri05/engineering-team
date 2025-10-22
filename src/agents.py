@@ -214,20 +214,23 @@ class AgentFactory:
         """
         Create all agents defined in the configuration.
 
+        This method builds the agent-task mapping dynamically from tasks.yaml.
+        Each task in tasks.yaml specifies which agent should execute it via the 'agent' field.
+
         Args:
             requirements: Project requirements
 
         Returns:
             Dictionary mapping agent names to Agent instances
         """
-        # Map agent names to task names
-        agent_task_mapping = {
-            'engineering_lead': 'design_task',
-            'backend_engineer': 'code_task',
-            'frontend_engineer': 'frontend_task',
-            'test_engineer': 'test_task'
-        }
+        # Build agent-task mapping from tasks.yaml (each task has an 'agent' field)
+        agent_task_mapping = {}
+        for task_name, task_config in self.tasks_config.items():
+            if 'agent' in task_config:
+                agent_name = task_config['agent']
+                agent_task_mapping[agent_name] = task_name
 
+        # Create all agents
         agents = {}
         for agent_name, task_name in agent_task_mapping.items():
             agents[agent_name] = self.create_agent(

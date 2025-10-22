@@ -1,27 +1,32 @@
 """Tools for file output and utilities."""
 
 from pathlib import Path
-from typing import Optional
 
-# Module-level variable for output directory (can be configured from main.py)
-OUTPUT_DIR = "output"
+# Module-level variable for output directory (MUST be set from main.py before use)
+OUTPUT_DIR = None
 
 
-def save_to_file(content: str, filename: str, output_dir: Optional[str] = None) -> str:
+def save_to_file(content: str, filename: str) -> str:
     """
     Save content to a file in the specified output directory.
 
     Args:
         content: The content to write to the file
         filename: The name of the file to create
-        output_dir: The directory to save the file in (default: uses OUTPUT_DIR)
 
     Returns:
         A confirmation message with the file path
+
+    Raises:
+        RuntimeError: If OUTPUT_DIR has not been configured
     """
-    # Use the module-level OUTPUT_DIR if not specified
-    if output_dir is None:
-        output_dir = OUTPUT_DIR
+    # Use the module-level OUTPUT_DIR configured in main.py
+    if OUTPUT_DIR is None:
+        raise RuntimeError(
+            "OUTPUT_DIR has not been configured. "
+            "This should be set from main.py using tools.OUTPUT_DIR = output_dir"
+        )
+    output_dir = OUTPUT_DIR
 
     # Create output directory if it doesn't exist
     Path(output_dir).mkdir(parents=True, exist_ok=True)

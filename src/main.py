@@ -19,14 +19,14 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Provide requirements from a file
-  python -m src.main --requirements requirements.txt
+  # Basic usage with requirements and output directory
+  python -m src.main --requirements requirements.txt --output output
 
   # Specify custom output directory
   python -m src.main --requirements my-project.txt --output my_output
 
   # Quiet mode (minimal progress information)
-  python -m src.main --requirements requirements.txt --quiet
+  python -m src.main --requirements requirements.txt --output output --quiet
 
   # Using short flags
   python -m src.main -r requirements.txt -o build -q
@@ -43,8 +43,8 @@ Examples:
     parser.add_argument(
         '--output', '-o',
         type=str,
-        default='output',
-        help='Output directory for generated files (default: output)'
+        required=True,
+        help='Output directory for generated files (required)'
     )
 
     parser.add_argument(
