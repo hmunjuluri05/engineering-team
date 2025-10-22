@@ -22,21 +22,17 @@ class EngineeringTeam:
     - Agents are created from YAML configuration files
     """
 
-    def __init__(self, requirements: str, module_name: str, class_name: str,
+    def __init__(self, requirements: str,
                  agents_config: str = None, tasks_config: str = None):
         """
         Initialize the Engineering Team.
 
         Args:
             requirements: The project requirements
-            module_name: The name of the module to create (empty string for auto-determination)
-            class_name: The name of the class to create (empty string for auto-determination)
             agents_config: Path to agents.yaml (defaults to src/config/agents.yaml)
             tasks_config: Path to tasks.yaml (defaults to src/config/tasks.yaml)
         """
         self.requirements = requirements
-        self.module_name = module_name
-        self.class_name = class_name
 
         # Set default config paths if not provided
         if agents_config is None:
@@ -51,9 +47,7 @@ class EngineeringTeam:
         self.agent_factory = AgentFactory(agents_config, tasks_config)
 
         # Create all agents from configuration
-        agents_dict = self.agent_factory.create_all_agents(
-            requirements, module_name, class_name
-        )
+        agents_dict = self.agent_factory.create_all_agents(requirements)
 
         # Store individual agents
         self.engineering_lead = agents_dict['engineering_lead']

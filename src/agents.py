@@ -102,7 +102,7 @@ class AgentFactory:
         return tools
 
     def _build_instruction(self, agent_name: str, task_name: str,
-                          requirements: str, module_name: str, class_name: str) -> str:
+                          requirements: str) -> str:
         """
         Build the instruction for an agent by combining agent config and task config.
 
@@ -110,8 +110,6 @@ class AgentFactory:
             agent_name: Name of the agent
             task_name: Name of the task
             requirements: Project requirements
-            module_name: Module name
-            class_name: Class name
 
         Returns:
             Complete instruction string
@@ -125,61 +123,37 @@ class AgentFactory:
         # Add backstory (who the agent is)
         if 'backstory' in agent_config:
             backstory = agent_config['backstory'].strip()
-            backstory = backstory.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            backstory = backstory.format(requirements=requirements)
             instruction_parts.append(backstory)
 
         # Add role
         if 'role' in agent_config:
             role = agent_config['role'].strip()
-            role = role.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            role = role.format(requirements=requirements)
             instruction_parts.append(f"\nYour role: {role}")
 
         # Add goal
         if 'goal' in agent_config:
             goal = agent_config['goal'].strip()
-            goal = goal.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            goal = goal.format(requirements=requirements)
             instruction_parts.append(f"\nYour goal: {goal}")
 
         # Add task description
         if 'description' in task_config:
             description = task_config['description'].strip()
-            description = description.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            description = description.format(requirements=requirements)
             instruction_parts.append(f"\nTask: {description}")
 
         # Add expected output format
         if 'expected_output' in task_config:
             expected_output = task_config['expected_output'].strip()
-            expected_output = expected_output.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            expected_output = expected_output.format(requirements=requirements)
             instruction_parts.append(f"\nExpected output: {expected_output}")
 
         # Add file saving instruction
         if 'output_file' in task_config:
             output_file = task_config['output_file'].strip()
-            output_file = output_file.format(
-                requirements=requirements,
-                module_name=module_name,
-                class_name=class_name
-            )
+            output_file = output_file.format(requirements=requirements)
             # Extract just the filename from the path
             filename = Path(output_file).name
             instruction_parts.append(
@@ -189,7 +163,7 @@ class AgentFactory:
         return "\n".join(instruction_parts)
 
     def create_agent(self, agent_name: str, task_name: str,
-                    requirements: str, module_name: str, class_name: str) -> Agent:
+                    requirements: str) -> Agent:
         """
         Create an agent from configuration.
 
@@ -197,8 +171,6 @@ class AgentFactory:
             agent_name: Name of the agent in agents.yaml
             task_name: Name of the task in tasks.yaml
             requirements: Project requirements
-            module_name: Module name
-            class_name: Class name
 
         Returns:
             An Agent instance configured from the YAML files
@@ -213,15 +185,11 @@ class AgentFactory:
 
         # Build description from role
         description = agent_config.get('role', '').strip()
-        description = description.format(
-            requirements=requirements,
-            module_name=module_name,
-            class_name=class_name
-        )
+        description = description.format(requirements=requirements)
 
         # Build instruction
         instruction = self._build_instruction(
-            agent_name, task_name, requirements, module_name, class_name
+            agent_name, task_name, requirements
         )
 
         # Resolve tools (with optional custom tools module)
@@ -242,14 +210,12 @@ class AgentFactory:
             output_key=output_key
         )
 
-    def create_all_agents(self, requirements: str, module_name: str, class_name: str) -> Dict[str, Agent]:
+    def create_all_agents(self, requirements: str) -> Dict[str, Agent]:
         """
         Create all agents defined in the configuration.
 
         Args:
             requirements: Project requirements
-            module_name: Module name
-            class_name: Class name
 
         Returns:
             Dictionary mapping agent names to Agent instances
@@ -265,7 +231,7 @@ class AgentFactory:
         agents = {}
         for agent_name, task_name in agent_task_mapping.items():
             agents[agent_name] = self.create_agent(
-                agent_name, task_name, requirements, module_name, class_name
+                agent_name, task_name, requirements
             )
 
         return agents

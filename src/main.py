@@ -92,9 +92,7 @@ def run():
 
     # Create the engineering team
     team = EngineeringTeam(
-        requirements=requirements,
-        module_name="",  # Will be determined by agents
-        class_name=""    # Will be determined by agents
+        requirements=requirements
     )
 
     # Run the workflow
